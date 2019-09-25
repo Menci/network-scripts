@@ -12,6 +12,7 @@ class NSShadowsocksTransproxy(NSTransproxy):
     self.config = config
     self.iptables = NSIptables()
     self.stopped = False
+    self.process = None
   
   async def _run_ss_redir(self):
     utils.log()
@@ -32,6 +33,9 @@ class NSShadowsocksTransproxy(NSTransproxy):
                                                            stdout=asyncio.subprocess.PIPE,
                                                            stderr=asyncio.subprocess.STDOUT,
                                                            preexec_fn=lambda: (os.setgid(run_gid), os.setsid()))
+      if self.stopped:
+        self.process.kill()
+
       utils.log("self.process.pid = %d" % self.process.pid)
       async for line in self.process.stdout:
         utils.log("ss-redir: %s" % line.decode("utf-8").strip())
@@ -79,7 +83,9 @@ class NSShadowsocksTransproxy(NSTransproxy):
 
     self.stopped = True
 
-    if type(self.process.returncode) != int:
+    if not self.process:
+      utils.log("Not killing ss-redir process, since self.process is None")
+    elif type(self.process.returncode) != int:
       utils.log("Killing ss-redir process")
       self.process.kill()
     else:

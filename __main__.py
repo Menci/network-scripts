@@ -10,7 +10,7 @@ from iptables import NSIptables
 
 class NSMain:
   def __init__(self):
-    self.nat = NSNat(["wan0", "wan1"], "169.254.233.1")
+    self.nat = NSNat(config.global_config["ignored_ip_address"], config.global_config["wan_interfaces"])
     self.auto_switcher = NSAutoSwitcher(config.profiles)
     self.iptables = NSIptables()
     self.signaled = False
@@ -54,3 +54,4 @@ loop.add_signal_handler(signal.SIGTERM, main.stop)
 
 loop.run_until_complete(main.start())
 loop.run_until_complete(asyncio.gather(*asyncio.Task.all_tasks()))
+

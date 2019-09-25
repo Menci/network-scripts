@@ -57,6 +57,7 @@ class NSWireGuardTransproxy(NSTransproxy):
     utils.system("ip rule add fwmark %d table %d" % (fwmark, ip_route_table))
 
     self.iptables.add_rule("mangle", "TRANSPROXY_MARK", "-d %s -p udp --dport %d -j RETURN" % (endpoint_ip, endpoint_port), 1)
+    self.iptables.add_rule("nat", "POSTROUTING", "-o wireguard -j MASQUERADE")
     self.iptables.add_rule("mangle", "OUTPUT", "-j TRANSPROXY_MARK")
     self.iptables.add_rule("mangle", "PREROUTING", "-j TRANSPROXY_MARK")
 
