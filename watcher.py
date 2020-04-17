@@ -35,7 +35,10 @@ class NSWatcher:
     asyncio.create_task(self.watch())
 
   def stop(self):
-    self.process.kill()
+    try:
+      self.process.kill()
+    except ProcessLookupError as e:
+      utils.log("Error killing process: " + str(e))
 
   def get_value(self, line):
     raise NotImplementedError()

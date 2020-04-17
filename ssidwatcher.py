@@ -15,6 +15,7 @@ class NSSSIDWatcher(NSWatcher):
     out, err = utils.exec(config.global_config["get_ssid_command"])
     
     if err:
-      utils.log("SSID: %s" % repr(err));
+      utils.log("GetSSID Error: %s" % repr(err));
     
+    utils.log("SSID: %s" % repr(out))
     return out

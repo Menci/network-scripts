@@ -26,7 +26,7 @@ class NSIPWatcher(NSWatcher):
 
     ips = out.split('\n')
     for ip in ips:
-      if ip in self.ignored_ip_address:
+      if ip not in self.ignored_ip_address:
         return ip
     
     return ""

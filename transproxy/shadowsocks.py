@@ -34,7 +34,7 @@ class NSShadowsocksTransproxy(NSTransproxy):
                                                            stderr=asyncio.subprocess.STDOUT,
                                                            preexec_fn=lambda: (os.setgid(run_gid), os.setsid()))
       if self.stopped:
-        self.process.kill()
+        self.kill()
 
       utils.log("self.process.pid = %d" % self.process.pid)
       async for line in self.process.stdout:
@@ -73,6 +73,12 @@ class NSShadowsocksTransproxy(NSTransproxy):
     self.iptables.add_rule("mangle", "OUTPUT", "-m owner ! --gid-owner %s -j TRANSPROXY_MARK" % run_group)
     self.iptables.add_rule("mangle", "PREROUTING", "-j TRANSPROXY_MARK", 1)
 
+  def kill(self):
+    try:
+      self.process.kill()
+    except ProcessLookupError as e:
+      utils.log("Error killing process: " + str(e))
+
   def exec_stop(self):
     fwmark = config.global_config["transproxy"]["fwmark"]
     ip_route_table = config.global_config["transproxy"]["ip_route_table"]
@@ -87,6 +93,6 @@ class NSShadowsocksTransproxy(NSTransproxy):
       utils.log("Not killing ss-redir process, since self.process is None")
     elif type(self.process.returncode) != int:
       utils.log("Killing ss-redir process")
-      self.process.kill()
+      self.kill()
     else:
       utils.log("Not killing ss-redir process, since self.process.returncode is int")

@@ -20,9 +20,8 @@ class NSNat:
       self.iptables.add_rule("nat", "PREROUTING", "-d %s -j DNAT --to-destination %s" % (new_ip, config.global_config["dmz_host"]))
 
   async def start(self):
-    utils.log()
-
-    self.iptables.add_rule("nat", "POSTROUTING", "-s %s -j MASQUERADE" % config.global_config["dmz_host"])
+    self.iptables.add_rule("nat", "POSTROUTING", "-d %s -j SNAT --to-source %s" % (config.global_config["dmz_host"], config.global_config["dmz_host_source"]))
+    self.iptables.add_rule("nat", "POSTROUTING", "-s %s -j MASQUERADE" % config.global_config["lan_hosts"])
     self.iptables.add_rule("mangle", "POSTROUTING", "-p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu")
 
     for wan_interface in self.wan_interfaces:
